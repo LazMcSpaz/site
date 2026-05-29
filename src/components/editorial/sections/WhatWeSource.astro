@@ -1,0 +1,54 @@
+---
+import Icon from "../../Icon.astro";
+import { business, categories } from "../../../data/content.ts";
+---
+
+<section class="bg-brand-cream py-20 lg:py-28 border-b border-brand-navy/15">
+  <div class="mx-auto max-w-6xl px-5 lg:px-8" data-reveal>
+    <div class="grid lg:grid-cols-12 gap-8 lg:items-end">
+      <div class="lg:col-span-8">
+        <p class="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-brand-navy/70 border-l-4 border-brand-yellow pl-3">
+          No. 04 — The Catalog
+        </p>
+        <h2 class="mt-5 font-condensed font-bold uppercase text-5xl sm:text-6xl lg:text-7xl leading-[0.9] text-brand-navy">
+          If it's on a car,<br />we can find it.
+        </h2>
+      </div>
+      <div class="lg:col-span-4">
+        <p class="text-base text-brand-ink/85 font-serif leading-relaxed border-l-2 border-brand-navy/20 pl-5">
+          From a single tail light to a full front-end rebuild — including the glass. Tell us what the car is doing and what your budget is. We'll lay out your real options.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-14 grid sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x lg:divide-x divide-brand-navy/15 border border-brand-navy/20">
+      {categories.map((c, i) => (
+        <article class="bg-brand-cream p-7 lg:p-8 relative">
+          <p class="text-[0.65rem] uppercase tracking-[0.22em] text-brand-navy/55 font-bold">
+            № 0{i + 1}
+          </p>
+          <div class="mt-4 mb-5 text-brand-navy">
+            <Icon name={c.icon} size={40} strokeWidth={1.5} />
+          </div>
+          <h3 class="font-condensed font-bold uppercase text-2xl tracking-[0.01em] text-brand-navy leading-tight">
+            {c.title}
+          </h3>
+          <p class="mt-3 text-[0.95rem] text-brand-ink/80 font-serif leading-relaxed">{c.blurb}</p>
+        </article>
+      ))}
+    </div>
+
+    <div class="mt-10 flex flex-col sm:flex-row gap-3 sm:items-center">
+      <a
+        href={business.phoneHref}
+        class="inline-flex items-center justify-center gap-2 bg-brand-navy text-white font-bold px-6 py-3 hover:bg-brand-yellow hover:text-brand-navy transition-colors"
+      >
+        <Icon name="phone" size={18} strokeWidth={2.25} />
+        Call about your part
+      </a>
+      <span class="text-sm text-brand-ink/60 font-serif italic">
+        Returns case-by-case. We also refer trusted mechanics &amp; body shops.
+      </span>
+    </div>
+  </div>
+</section>

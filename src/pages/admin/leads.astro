@@ -1,0 +1,254 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import Icon from "../../components/Icon.astro";
+
+const filters = [
+  { key: "all", label: "All" },
+  { key: "new", label: "New" },
+  { key: "contacted", label: "Contacted" },
+  { key: "quoted", label: "Quoted" },
+  { key: "closed", label: "Closed" },
+];
+---
+
+<AdminLayout title="Leads">
+  <header class="border-b border-white/10">
+    <div class="mx-auto max-w-6xl px-5 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/admin" class="flex items-center gap-3">
+          <img src="/morys_logo.png" alt="" width="28" height="28" class="w-7 h-7 object-contain" />
+          <span class="font-condensed font-bold uppercase text-2xl tracking-[0.04em]">Mory's</span>
+        </a>
+        <span class="text-[0.62rem] uppercase tracking-[0.24em] text-brand-yellow font-bold">Leads</span>
+      </div>
+      <nav class="flex items-center gap-6 text-sm font-semibold uppercase tracking-wider">
+        <a href="/admin" class="text-white/70 hover:text-brand-yellow transition-colors">Dashboard</a>
+        <button id="logout" class="text-white/70 hover:text-brand-yellow transition-colors inline-flex items-center gap-1">
+          Log out <Icon name="arrow-up-right" size={14} strokeWidth={2.25} />
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-5 lg:px-8 py-10">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="text-[0.7rem] font-bold uppercase tracking-[0.3em] text-brand-yellow">Inbox</p>
+        <h1 class="mt-2 font-condensed font-bold uppercase text-4xl sm:text-5xl">Part requests</h1>
+      </div>
+      <button id="refresh" class="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-white/70 hover:text-brand-yellow transition-colors">
+        <Icon name="recycle" size={16} strokeWidth={2} /> Refresh
+      </button>
+    </div>
+
+    <!-- Filter tabs -->
+    <div id="filters" class="mt-8 flex flex-wrap gap-2">
+      {filters.map((f) => (
+        <button
+          data-filter={f.key}
+          class="filter-tab text-xs font-bold uppercase tracking-wider px-4 py-2 border border-white/20 text-white/70 hover:border-brand-yellow transition-colors data-[active]:bg-brand-yellow data-[active]:text-brand-navy data-[active]:border-brand-yellow"
+        >
+          {f.label} <span class="count opacity-60" data-count={f.key}></span>
+        </button>
+      ))}
+    </div>
+
+    <!-- States -->
+    <div id="loading" class="mt-12 text-center text-white/50 text-sm">Loading leads…</div>
+    <div id="error" class="hidden mt-12 border border-brand-yellow/40 bg-brand-yellow/5 p-6 text-center">
+      <p id="error-msg" class="text-brand-yellow font-semibold"></p>
+    </div>
+    <div id="empty" class="hidden mt-12 text-center text-white/50">
+      <p class="font-condensed font-bold uppercase text-2xl text-white/70">No leads yet</p>
+      <p class="mt-2 text-sm">New part requests from the website will show up here.</p>
+    </div>
+
+    <!-- Table -->
+    <div id="table-wrap" class="hidden mt-8 overflow-x-auto border border-white/10">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-white/[0.04] text-left text-[0.65rem] uppercase tracking-[0.18em] text-white/55">
+            <th class="px-4 py-3 font-bold">Date</th>
+            <th class="px-4 py-3 font-bold">Name</th>
+            <th class="px-4 py-3 font-bold">Part</th>
+            <th class="px-4 py-3 font-bold hidden md:table-cell">Vehicle</th>
+            <th class="px-4 py-3 font-bold">Status</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Detail drawer -->
+  <div id="drawer" class="hidden fixed inset-0 z-50">
+    <div id="drawer-bg" class="absolute inset-0 bg-black/60"></div>
+    <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-brand-navy border-l border-white/15 overflow-y-auto">
+      <div class="p-6">
+        <div class="flex items-center justify-between">
+          <p class="text-[0.7rem] font-bold uppercase tracking-[0.3em] text-brand-yellow">Lead detail</p>
+          <button id="drawer-close" class="text-white/60 hover:text-white"><Icon name="x" size={22} strokeWidth={2} /></button>
+        </div>
+        <div id="drawer-body" class="mt-6 space-y-5"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STATUS_STYLES: Record<string, string> = {
+      new: "bg-brand-yellow text-brand-navy",
+      contacted: "bg-white/15 text-white",
+      quoted: "bg-white/15 text-white",
+      closed: "bg-white/10 text-white/50",
+    };
+    const STATUSES = ["new", "contacted", "quoted", "closed"];
+
+    let allLeads: any[] = [];
+    let activeFilter = "all";
+
+    const $ = (id: string) => document.getElementById(id)!;
+    const esc = (s: unknown) =>
+      String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
+    const fmtDate = (iso: string) =>
+      new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+    function show(id: string, on = true) {
+      $(id).classList.toggle("hidden", !on);
+    }
+
+    function statusBadge(status: string) {
+      const cls = STATUS_STYLES[status] || "bg-white/15 text-white";
+      return `<span class="inline-block text-[0.6rem] font-bold uppercase tracking-wider px-2 py-1 ${cls}">${esc(status)}</span>`;
+    }
+
+    function renderCounts() {
+      document.querySelectorAll<HTMLElement>(".count").forEach((el) => {
+        const key = el.dataset.count!;
+        const n = key === "all" ? allLeads.length : allLeads.filter((l) => l.status === key).length;
+        el.textContent = n ? `(${n})` : "";
+      });
+    }
+
+    function renderRows() {
+      const list = activeFilter === "all" ? allLeads : allLeads.filter((l) => l.status === activeFilter);
+      show("empty", list.length === 0 && allLeads.length === 0);
+      show("table-wrap", list.length > 0);
+      const tbody = $("rows");
+      tbody.innerHTML = list
+        .map((l) => {
+          const vehicle = [l.vehicle_year, l.vehicle_make, l.vehicle_model].filter(Boolean).join(" ") || "—";
+          return `<tr class="border-t border-white/10 hover:bg-white/[0.03] cursor-pointer" data-id="${esc(l.id)}">
+            <td class="px-4 py-3 text-white/70 whitespace-nowrap">${fmtDate(l.created_at)}</td>
+            <td class="px-4 py-3"><span class="font-semibold">${esc(l.name)}</span><br><span class="text-white/50 text-xs">${esc(l.phone)}</span></td>
+            <td class="px-4 py-3">${esc(l.part_needed)}</td>
+            <td class="px-4 py-3 text-white/70 hidden md:table-cell">${esc(vehicle)}</td>
+            <td class="px-4 py-3">${statusBadge(l.status)}</td>
+          </tr>`;
+        })
+        .join("");
+      tbody.querySelectorAll<HTMLElement>("tr").forEach((tr) => {
+        tr.addEventListener("click", () => openDrawer(tr.dataset.id!));
+      });
+    }
+
+    function openDrawer(id: string) {
+      const l = allLeads.find((x) => x.id === id);
+      if (!l) return;
+      const vehicle = [l.vehicle_year, l.vehicle_make, l.vehicle_model].filter(Boolean).join(" ") || "—";
+      const row = (label: string, val: string) =>
+        `<div><p class="text-[0.65rem] uppercase tracking-[0.18em] text-white/45 font-bold">${label}</p><p class="mt-1 text-white">${val}</p></div>`;
+      $("drawer-body").innerHTML = `
+        ${row("Name", esc(l.name))}
+        ${row("Phone", `<a href="tel:${esc(l.phone)}" class="text-brand-yellow">${esc(l.phone)}</a>`)}
+        ${row("Email", `<a href="mailto:${esc(l.email)}" class="text-brand-yellow break-all">${esc(l.email)}</a>`)}
+        ${row("Vehicle", esc(vehicle))}
+        ${row("Part needed", esc(l.part_needed))}
+        ${row("Condition", esc(l.condition_pref))}
+        ${row("Language", esc(l.language_pref))}
+        ${row("Message", esc(l.message) || "—")}
+        ${row("Received", fmtDate(l.created_at))}
+        <div>
+          <p class="text-[0.65rem] uppercase tracking-[0.18em] text-white/45 font-bold mb-2">Set status</p>
+          <div class="flex flex-wrap gap-2">
+            ${STATUSES.map(
+              (s) =>
+                `<button data-set-status="${s}" data-id="${esc(l.id)}" class="text-[0.6rem] font-bold uppercase tracking-wider px-3 py-1.5 border ${
+                  l.status === s ? "bg-brand-yellow text-brand-navy border-brand-yellow" : "border-white/25 text-white/70 hover:border-brand-yellow"
+                }">${s}</button>`
+            ).join("")}
+          </div>
+        </div>`;
+      $("drawer-body").querySelectorAll<HTMLElement>("[data-set-status]").forEach((btn) => {
+        btn.addEventListener("click", () => updateStatus(btn.dataset.id!, btn.dataset.setStatus!));
+      });
+      show("drawer", true);
+    }
+
+    function closeDrawer() {
+      show("drawer", false);
+    }
+
+    async function updateStatus(id: string, status: string) {
+      try {
+        const res = await fetch("/api/staff/leads", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, status }),
+        });
+        if (!res.ok) throw new Error();
+        const lead = allLeads.find((l) => l.id === id);
+        if (lead) lead.status = status;
+        renderCounts();
+        renderRows();
+        openDrawer(id);
+      } catch {
+        alert("Could not update status. Try again.");
+      }
+    }
+
+    async function load() {
+      show("loading", true);
+      show("error", false);
+      show("table-wrap", false);
+      show("empty", false);
+      try {
+        const res = await fetch("/api/staff/leads");
+        if (res.status === 401) {
+          window.location.href = "/admin/login";
+          return;
+        }
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || "Could not load leads.");
+        allLeads = body.leads || [];
+        show("loading", false);
+        renderCounts();
+        renderRows();
+      } catch (e) {
+        show("loading", false);
+        $("error-msg").textContent = e instanceof Error ? e.message : "Could not load leads.";
+        show("error", true);
+      }
+    }
+
+    // Wire up
+    document.querySelectorAll<HTMLElement>(".filter-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        activeFilter = tab.dataset.filter!;
+        document.querySelectorAll<HTMLElement>(".filter-tab").forEach((t) => delete t.dataset.active);
+        tab.dataset.active = "";
+        renderRows();
+      });
+    });
+    (document.querySelector('.filter-tab[data-filter="all"]') as HTMLElement).dataset.active = "";
+
+    $("refresh").addEventListener("click", load);
+    $("drawer-close").addEventListener("click", closeDrawer);
+    $("drawer-bg").addEventListener("click", closeDrawer);
+    $("logout").addEventListener("click", async () => {
+      await fetch("/api/staff/logout", { method: "POST" }).catch(() => {});
+      window.location.href = "/admin/login";
+    });
+
+    load();
+  </script>
+</AdminLayout>

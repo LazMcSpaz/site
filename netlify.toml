@@ -1,0 +1,21 @@
+# Netlify build configuration for the Mory's Auto Parts site.
+# This assumes the `site/` folder is the git repository root.
+# (If you instead make the parent "(Website) Morys" folder the repo root,
+#  add `base = "site"` under [build] and change publish to "site/dist".)
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Astro 6 needs Node 18.20.8+, 20.3+, or 22+. Pin to 22 to match package.json engines.
+  NODE_VERSION = "22"
+
+# Static multi-page site — Astro emits /editorial/index.html and /sport/index.html,
+# so clean URLs work natively. No SPA redirect needed.
+
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    # Hashed asset filenames are safe to cache forever.
+    cache-control = "public, max-age=31536000, immutable"

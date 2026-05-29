@@ -1,0 +1,90 @@
+---
+import Base from "../layouts/Base.astro";
+import Header from "../components/editorial/Header.astro";
+import Footer from "../components/editorial/Footer.astro";
+import LeadForm from "../components/editorial/LeadForm.astro";
+import ServiceMap from "../components/ServiceMap.astro";
+import Icon from "../components/Icon.astro";
+import { business } from "../data/content.ts";
+
+const title = `Contact Mory's Auto Parts and Glass — Hialeah, FL`;
+const description = `Send a part request or call Mory's Auto Parts and Glass in Hialeah. New, used, and aftermarket parts plus auto glass for South Florida. ${business.phone}.`;
+---
+
+<Base title={title} description={description}>
+  <Header />
+  <main class="flex-1">
+    <section class="bg-brand-cream border-b border-brand-navy/15">
+      <div class="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-20">
+        <nav class="text-[0.7rem] uppercase tracking-[0.18em] text-brand-navy/55 mb-8" aria-label="Breadcrumb">
+          <a href="/" class="hover:text-brand-yellow">Home</a>
+          <span class="mx-2">/</span>
+          <span class="text-brand-navy">Contact</span>
+        </nav>
+        <div class="max-w-3xl" data-reveal>
+          <p class="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-brand-navy/70 border-l-4 border-brand-yellow pl-3">
+            Get a Quote
+          </p>
+          <h1 class="mt-5 font-condensed font-bold uppercase text-5xl sm:text-6xl lg:text-7xl leading-[0.9] text-brand-navy">
+            Tell us what<br />your car needs.
+          </h1>
+          <p class="mt-5 text-lg text-brand-ink/85 font-serif leading-relaxed max-w-2xl">
+            Fill out the part request below or just call the shop. We'll work our network, find your options, and get back to you with real prices — usually same week.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white py-14 lg:py-20">
+      <div class="mx-auto max-w-6xl px-5 lg:px-8 grid lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+        <!-- Form -->
+        <div class="lg:col-span-7" data-reveal>
+          <LeadForm />
+        </div>
+
+        <!-- Contact details + map -->
+        <aside class="lg:col-span-5 lg:sticky lg:top-24" data-reveal data-reveal-delay="100">
+          <div class="border-y border-brand-navy/20 divide-y divide-brand-navy/15">
+            <div class="py-5 flex items-start gap-4">
+              <span class="text-brand-navy mt-0.5"><Icon name="phone" size={22} strokeWidth={1.75} /></span>
+              <div>
+                <p class="text-[0.7rem] uppercase tracking-[0.2em] text-brand-navy/60 font-bold">Call</p>
+                <a href={business.phoneHref} class="font-condensed font-bold uppercase text-2xl text-brand-navy hover:text-brand-yellow transition-colors">{business.phone}</a>
+              </div>
+            </div>
+            <div class="py-5 flex items-start gap-4">
+              <span class="text-brand-navy mt-0.5"><Icon name="mail" size={22} strokeWidth={1.75} /></span>
+              <div>
+                <p class="text-[0.7rem] uppercase tracking-[0.2em] text-brand-navy/60 font-bold">Email</p>
+                <a href={`mailto:${business.email}`} class="font-serif text-base text-brand-navy hover:text-brand-yellow transition-colors break-all">{business.email}</a>
+              </div>
+            </div>
+            <div class="py-5 flex items-start gap-4">
+              <span class="text-brand-navy mt-0.5"><Icon name="map-pin" size={22} strokeWidth={1.75} /></span>
+              <div>
+                <p class="text-[0.7rem] uppercase tracking-[0.2em] text-brand-navy/60 font-bold">Visit</p>
+                <p class="font-condensed font-bold uppercase text-xl text-brand-navy leading-tight">{business.address.line1}<br />{business.address.line2}</p>
+                <a href={business.mapsUrl} target="_blank" rel="noopener" class="mt-1 inline-flex items-center gap-1 text-xs uppercase tracking-[0.16em] font-bold text-brand-navy border-b-2 border-brand-yellow hover:border-brand-navy transition-colors">
+                  Directions <Icon name="arrow-up-right" size={13} strokeWidth={2.25} />
+                </a>
+              </div>
+            </div>
+            <div class="py-5 flex items-start gap-4">
+              <span class="text-brand-navy mt-0.5"><Icon name="clock" size={22} strokeWidth={1.75} /></span>
+              <div>
+                <p class="text-[0.7rem] uppercase tracking-[0.2em] text-brand-navy/60 font-bold">Hours</p>
+                <p class="font-condensed font-bold uppercase text-xl text-brand-navy">{business.hours}</p>
+                <p class="text-xs text-brand-ink/60 font-serif">Closed weekends &amp; major holidays</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 ring-1 ring-brand-navy/15">
+            <ServiceMap ratio="4/3" />
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Base>

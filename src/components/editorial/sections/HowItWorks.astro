@@ -1,0 +1,45 @@
+---
+import Icon from "../../Icon.astro";
+import { howItWorks } from "../../../data/content.ts";
+---
+
+<section class="bg-white py-20 lg:py-28 border-b border-brand-navy/15">
+  <div class="mx-auto max-w-6xl px-5 lg:px-8" data-reveal>
+    <div class="grid lg:grid-cols-12 gap-8 lg:items-end">
+      <div class="lg:col-span-7">
+        <p class="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-brand-navy/70 border-l-4 border-brand-yellow pl-3">
+          No. 03 — The Process
+        </p>
+        <h2 class="mt-5 font-condensed font-bold uppercase text-5xl sm:text-6xl lg:text-7xl leading-[0.9] text-brand-navy">
+          Four steps.<br />No run-around.
+        </h2>
+      </div>
+      <div class="lg:col-span-5">
+        <p class="text-base text-brand-ink/85 font-serif leading-relaxed border-l-2 border-brand-navy/20 pl-5">
+          We don't waste your time and we don't pretend to have what we don't. The process is built around getting you the right part at a fair price — fast.
+        </p>
+      </div>
+    </div>
+
+    <ol class="mt-14 divide-y divide-brand-navy/15 border-y border-brand-navy/20">
+      {howItWorks.map((s) => (
+        <li class="grid lg:grid-cols-12 gap-6 py-8 lg:py-10 items-start">
+          <div class="lg:col-span-2">
+            <span class="font-condensed font-bold text-7xl lg:text-8xl text-brand-yellow leading-none">{s.n}</span>
+          </div>
+          <div class="lg:col-span-1 hidden lg:flex justify-center pt-3">
+            <Icon name={s.icon} size={32} strokeWidth={1.5} class="text-brand-navy/70" />
+          </div>
+          <div class="lg:col-span-5">
+            <h3 class="font-condensed font-bold uppercase text-2xl lg:text-3xl text-brand-navy tracking-[0.01em] leading-tight">
+              {s.title}
+            </h3>
+          </div>
+          <div class="lg:col-span-4">
+            <p class="text-base text-brand-ink/85 font-serif leading-relaxed">{s.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

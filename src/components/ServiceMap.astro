@@ -1,0 +1,21 @@
+---
+interface Props {
+  ratio?: string; // CSS aspect-ratio, e.g. "16/10"
+  class?: string;
+}
+
+const { ratio = "16/10", class: className = "" } = Astro.props;
+---
+
+<div class={`relative w-full overflow-hidden ${className}`} style={`aspect-ratio: ${ratio};`}>
+  <iframe
+    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3591.365262234246!2d-80.26354302596914!3d25.82450670600964!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88d9b0edce51caff%3A0xa27ad9d38ecf947c!2sMory&#39;s%20Auto%20Parts%20and%20glass!5e0!3m2!1sen!2sus!4v1778626534875!5m2!1sen!2sus"
+    width="100%"
+    height="100%"
+    style="border:0; position:absolute; inset:0;"
+    allowfullscreen
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+    title="Mory's Auto Parts and Glass — Hialeah, FL location map"
+  ></iframe>
+</div>

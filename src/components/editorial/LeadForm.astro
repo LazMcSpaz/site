@@ -1,0 +1,158 @@
+---
+import Icon from "../Icon.astro";
+
+const inputClass =
+  "w-full bg-white border border-brand-navy/25 px-4 py-3 text-brand-navy placeholder:text-brand-navy/35 focus:outline-none focus:border-brand-yellow focus:ring-2 focus:ring-brand-yellow/30 transition-colors";
+const labelClass =
+  "block text-[0.7rem] uppercase tracking-[0.18em] text-brand-navy font-bold mb-2";
+---
+
+<form id="lead-form" class="space-y-6" novalidate>
+  <!-- Honeypot: hidden from humans, bots fill it -->
+  <div class="absolute -left-[9999px]" aria-hidden="true">
+    <label>Leave this blank<input type="text" name="company" tabindex="-1" autocomplete="off" /></label>
+  </div>
+
+  <div class="grid sm:grid-cols-2 gap-5">
+    <div>
+      <label class={labelClass} for="lf-name">Name <span class="text-brand-red">*</span></label>
+      <input class={inputClass} id="lf-name" name="name" type="text" required autocomplete="name" placeholder="Your name" />
+    </div>
+    <div>
+      <label class={labelClass} for="lf-phone">Phone <span class="text-brand-red">*</span></label>
+      <input class={inputClass} id="lf-phone" name="phone" type="tel" required autocomplete="tel" placeholder="(305) 555-0123" />
+    </div>
+  </div>
+
+  <div>
+    <label class={labelClass} for="lf-email">Email <span class="text-brand-red">*</span></label>
+    <input class={inputClass} id="lf-email" name="email" type="email" required autocomplete="email" placeholder="you@email.com" />
+    <p class="mt-1.5 text-xs text-brand-ink/55 font-serif">We'll send a confirmation here once we get your request.</p>
+  </div>
+
+  <fieldset class="border border-brand-navy/20 p-5">
+    <legend class="px-2 text-[0.7rem] uppercase tracking-[0.18em] text-brand-navy font-bold">The Vehicle</legend>
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <div>
+        <label class={labelClass} for="lf-year">Year</label>
+        <input class={inputClass} id="lf-year" name="vehicle_year" type="text" inputmode="numeric" maxlength="4" placeholder="2014" />
+      </div>
+      <div>
+        <label class={labelClass} for="lf-make">Make</label>
+        <input class={inputClass} id="lf-make" name="vehicle_make" type="text" placeholder="Toyota" />
+      </div>
+      <div class="col-span-2 sm:col-span-1">
+        <label class={labelClass} for="lf-model">Model</label>
+        <input class={inputClass} id="lf-model" name="vehicle_model" type="text" placeholder="Camry" />
+      </div>
+    </div>
+  </fieldset>
+
+  <div>
+    <label class={labelClass} for="lf-part">Part needed <span class="text-brand-red">*</span></label>
+    <input class={inputClass} id="lf-part" name="part_needed" type="text" required placeholder="e.g. front bumper, alternator, windshield" />
+  </div>
+
+  <div class="grid sm:grid-cols-2 gap-5">
+    <div>
+      <label class={labelClass} for="lf-condition">Condition preference</label>
+      <select class={inputClass} id="lf-condition" name="condition_pref">
+        <option value="any">No preference</option>
+        <option value="new">New</option>
+        <option value="used">Used</option>
+        <option value="aftermarket">Aftermarket</option>
+      </select>
+    </div>
+    <div>
+      <label class={labelClass} for="lf-language">Preferred language</label>
+      <select class={inputClass} id="lf-language" name="language_pref">
+        <option value="en">English</option>
+        <option value="es">Español</option>
+      </select>
+    </div>
+  </div>
+
+  <div>
+    <label class={labelClass} for="lf-message">Anything else?</label>
+    <textarea class={`${inputClass} resize-y min-h-[110px]`} id="lf-message" name="message" placeholder="VIN, trim, color, or any detail that helps us find the right part."></textarea>
+  </div>
+
+  <div class="flex flex-col sm:flex-row sm:items-center gap-4 pt-2">
+    <button
+      type="submit"
+      id="lf-submit"
+      class="inline-flex items-center justify-center gap-2 bg-brand-navy text-white font-bold uppercase tracking-wide px-7 py-4 hover:bg-brand-yellow hover:text-brand-navy transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+    >
+      <span class="lf-label inline-flex items-center gap-2">
+        <Icon name="arrow-right" size={18} strokeWidth={2.25} />
+        Send part request
+      </span>
+      <span class="lf-spinner hidden">Sending…</span>
+    </button>
+    <p class="text-xs text-brand-ink/55 font-serif">No obligation. We'll call or email you back with options and pricing.</p>
+  </div>
+
+  <!-- Status messages -->
+  <div id="lf-success" class="hidden border-2 border-brand-navy bg-brand-cream p-5">
+    <p class="font-condensed font-bold uppercase text-2xl text-brand-navy">Request received.</p>
+    <p class="mt-2 text-brand-ink/85 font-serif">Thanks — we've got your part request and sent a confirmation to your email. We'll be in touch with options and pricing, usually same week.</p>
+  </div>
+  <div id="lf-error" class="hidden border-2 border-brand-red bg-brand-red/5 p-5">
+    <p class="font-condensed font-bold uppercase text-xl text-brand-red">Something went wrong.</p>
+    <p id="lf-error-msg" class="mt-2 text-brand-ink/85 font-serif">Please try again, or just call us at 305-835-2777.</p>
+  </div>
+</form>
+
+<script>
+  const form = document.getElementById("lead-form") as HTMLFormElement | null;
+  if (form) {
+    const submitBtn = document.getElementById("lf-submit") as HTMLButtonElement;
+    const label = form.querySelector(".lf-label") as HTMLElement;
+    const spinner = form.querySelector(".lf-spinner") as HTMLElement;
+    const successBox = document.getElementById("lf-success")!;
+    const errorBox = document.getElementById("lf-error")!;
+    const errorMsg = document.getElementById("lf-error-msg")!;
+
+    const setLoading = (loading: boolean) => {
+      submitBtn.disabled = loading;
+      label.classList.toggle("hidden", loading);
+      spinner.classList.toggle("hidden", !loading);
+    };
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorBox.classList.add("hidden");
+
+      // Native validation for required fields
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const data = Object.fromEntries(new FormData(form).entries());
+      setLoading(true);
+      try {
+        const res = await fetch("/api/leads", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.error || `Request failed (${res.status})`);
+        }
+        form.classList.add("hidden");
+        successBox.classList.remove("hidden");
+        successBox.scrollIntoView({ behavior: "smooth", block: "center" });
+      } catch (err) {
+        errorMsg.textContent =
+          (err instanceof Error ? err.message : "") ||
+          "Please try again, or just call us at 305-835-2777.";
+        errorBox.classList.remove("hidden");
+        errorBox.scrollIntoView({ behavior: "smooth", block: "center" });
+      } finally {
+        setLoading(false);
+      }
+    });
+  }
+</script>

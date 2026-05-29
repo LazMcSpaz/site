@@ -1,0 +1,26 @@
+{
+  "name": "site",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "preview:cf": "astro build && wrangler pages dev dist",
+    "staff:pin": "node scripts/staff-pin.mjs",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.3",
+    "@tailwindcss/vite": "^4.2.4",
+    "astro": "^6.2.1",
+    "tailwindcss": "^4.2.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260529.1",
+    "wrangler": "^4.95.0"
+  }
+}

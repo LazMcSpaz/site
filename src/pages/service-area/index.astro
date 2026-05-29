@@ -1,0 +1,96 @@
+---
+import Base from "../../layouts/Base.astro";
+import Header from "../../components/editorial/Header.astro";
+import Footer from "../../components/editorial/Footer.astro";
+import ContactCta from "../../components/editorial/sections/ContactCta.astro";
+import ServiceMap from "../../components/ServiceMap.astro";
+import Icon from "../../components/Icon.astro";
+import { business } from "../../data/content.ts";
+import { locations } from "../../data/seo.ts";
+
+const title = `Service Area — Auto Parts Across Miami-Dade & Broward | Mory's`;
+const description = `Mory's Auto Parts and Glass serves Hialeah, Miami, Doral, Kendall, Opa-Locka and more across South Florida. New, used, and aftermarket parts plus glass. Call ${business.phone}.`;
+
+const breadcrumb = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://morysautoparts.com/" },
+    { "@type": "ListItem", position: 2, name: "Service Area", item: "https://morysautoparts.com/service-area" },
+  ],
+};
+---
+
+<Base title={title} description={description} jsonLd={breadcrumb}>
+  <Header />
+  <main class="flex-1">
+    <section class="bg-brand-cream border-b border-brand-navy/15">
+      <div class="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-20">
+        <nav class="text-[0.7rem] uppercase tracking-[0.18em] text-brand-navy/55 mb-8" aria-label="Breadcrumb">
+          <a href="/" class="hover:text-brand-yellow">Home</a>
+          <span class="mx-2">/</span>
+          <span class="text-brand-navy">Service Area</span>
+        </nav>
+
+        <div class="grid lg:grid-cols-12 gap-8 lg:items-end" data-reveal>
+          <div class="lg:col-span-8">
+            <p class="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-brand-navy/70 border-l-4 border-brand-yellow pl-3">
+              Where We Serve
+            </p>
+            <h1 class="mt-5 font-condensed font-bold uppercase text-5xl sm:text-6xl lg:text-7xl leading-[0.9] text-brand-navy">
+              Across Miami-Dade<br />&amp; Broward.
+            </h1>
+          </div>
+          <div class="lg:col-span-4">
+            <p class="text-base text-brand-ink/85 font-serif leading-relaxed border-l-2 border-brand-navy/20 pl-5">
+              Walk in, call, or have it delivered — depending on the order, we cover most of the metro from our shop in Hialeah. Pick your city for local details.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white border-b border-brand-navy/15 py-16 lg:py-20">
+      <div class="mx-auto max-w-6xl px-5 lg:px-8 grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+        <div class="lg:col-span-5" data-reveal>
+          <p class="text-[0.7rem] uppercase tracking-[0.22em] text-brand-navy/60 font-bold mb-4 border-b border-brand-navy/20 pb-3">
+            Cities we serve
+          </p>
+          <ul class="divide-y divide-brand-navy/15">
+            {locations.map((l) => (
+              <li>
+                <a href={`/service-area/${l.slug}`} class="flex items-center justify-between py-4 group">
+                  <span>
+                    <span class="block font-condensed font-bold uppercase text-xl text-brand-navy tracking-[0.02em] group-hover:text-brand-yellow transition-colors">{l.name}</span>
+                    <span class="block text-xs text-brand-ink/55 font-serif">{l.county}</span>
+                  </span>
+                  <Icon name="arrow-right" size={16} strokeWidth={2} class="text-brand-navy/40 group-hover:text-brand-yellow transition-colors" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="lg:col-span-7" data-reveal data-reveal-delay="100">
+          <div class="relative ring-1 ring-brand-navy/15">
+            <ServiceMap ratio="16/11" />
+            <div class="absolute top-0 inset-x-0 bg-brand-navy text-white px-4 py-2 flex items-center justify-between text-[0.65rem] uppercase tracking-[0.22em] pointer-events-none font-bold">
+              <span class="inline-flex items-center gap-2">
+                <Icon name="map-pin" size={12} strokeWidth={2.25} class="text-brand-yellow" />
+                151 E 10th Ave · Hialeah, FL 33010
+              </span>
+              <span class="hidden sm:inline text-brand-yellow">South Florida coverage</span>
+            </div>
+          </div>
+          <p class="mt-5 text-sm text-brand-ink/70 font-serif">
+            Don't see your area? We still might be able to help — give us a call at
+            <a href={business.phoneHref} class="font-bold text-brand-navy hover:text-brand-yellow">{business.phone}</a>.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <ContactCta />
+  </main>
+  <Footer />
+</Base>

@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+@theme {
+  /* Brand palette */
+  --color-brand-yellow: #da861c;
+  --color-brand-yellow-700: #b56a13;
+  --color-brand-red: #e11011;
+  --color-brand-navy: #0f1f3d;
+  --color-brand-navy-700: #081428;
+  --color-brand-navy-300: #2a3d63;
+  --color-brand-black: #0b0b0b;
+  --color-brand-ink: #1a1a1a;
+  --color-brand-bone: #f4f1ea;
+  --color-brand-cream: #f6efe1;
+
+  /* Typography */
+  --font-display: "Bebas Neue", "Oswald", "Impact", sans-serif;
+  --font-condensed: "Saira Condensed", "Oswald", "Impact", sans-serif;
+  --font-sport: "Anton", "Bebas Neue", "Impact", sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Lora", "Source Serif Pro", Georgia, serif;
+
+  /* Container */
+  --container-narrow: 64rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Scroll-reveal: elements tagged [data-reveal] fade + rise into view.
+     Default state is hidden-ish; .is-revealed (added by JS or reduced-motion
+     fallback) animates them in. Kept subtle on purpose. */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+  [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal],
+    [data-reveal].is-revealed {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-brand-ink);
+    background: #ffffff;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    letter-spacing: 0.01em;
+    line-height: 1.05;
+  }
+}
+
+@utility btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  background: var(--color-brand-yellow);
+  color: var(--color-brand-black);
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: 0.02em;
+  border-radius: 4px;
+  transition: background 150ms ease, transform 150ms ease;
+}
+@utility btn-primary-hover {
+  background: var(--color-brand-yellow-700);
+}
+
+@utility btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  border: 2px solid var(--color-brand-black);
+  color: var(--color-brand-black);
+  font-weight: 700;
+  font-size: 1.125rem;
+  letter-spacing: 0.02em;
+  border-radius: 4px;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+/* Photo placeholder pattern — used until real photos arrive */
+@utility photo-placeholder {
+  background-color: var(--color-brand-bone);
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(11, 11, 11, 0.04) 0,
+      rgba(11, 11, 11, 0.04) 2px,
+      transparent 2px,
+      transparent 16px
+    );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(11, 11, 11, 0.55);
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 1rem;
+}

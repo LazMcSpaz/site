@@ -1,0 +1,58 @@
+---
+import Icon from "../../Icon.astro";
+import { reviews } from "../../../data/content.ts";
+
+const [featured, ...rest] = reviews;
+---
+
+<section class="bg-brand-cream py-20 lg:py-24 border-b border-brand-navy/15">
+  <div class="mx-auto max-w-6xl px-5 lg:px-8" data-reveal>
+    <p class="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-brand-navy/70 border-l-4 border-brand-yellow pl-3">
+      No. 02 — The Word on the Street
+    </p>
+
+    <!-- Featured pull quote -->
+    <figure class="mt-10 grid lg:grid-cols-12 gap-8 items-start">
+      <div class="lg:col-span-1">
+        <span class="font-condensed text-7xl text-brand-yellow leading-none block">“</span>
+      </div>
+      <div class="lg:col-span-9">
+        <blockquote class="font-serif italic text-2xl sm:text-3xl text-brand-navy leading-snug">
+          {featured.quote}
+        </blockquote>
+        <figcaption class="mt-5 text-sm tracking-[0.15em] uppercase text-brand-navy/70 font-semibold">
+          — {featured.name}, {featured.location}
+        </figcaption>
+      </div>
+      <div class="hidden lg:col-span-2 lg:flex lg:flex-col items-end">
+        <div class="flex gap-0.5 text-brand-yellow">
+          {[0, 1, 2, 3, 4].map(() => <Icon name="star" size={16} strokeWidth={2.25} />)}
+        </div>
+        <p class="mt-2 text-[0.65rem] uppercase tracking-[0.22em] text-brand-navy/60 font-semibold">Google · 5/5</p>
+      </div>
+    </figure>
+
+    <hr class="my-12 border-brand-navy/15" />
+
+    <!-- Two smaller quotes -->
+    <div class="grid gap-10 md:grid-cols-2">
+      {rest.map((r) => (
+        <figure>
+          <div class="flex gap-0.5 text-brand-yellow mb-3">
+            {[0, 1, 2, 3, 4].map(() => <Icon name="star" size={12} strokeWidth={2.25} />)}
+          </div>
+          <blockquote class="font-serif text-lg text-brand-ink/85 leading-relaxed">
+            “{r.quote}”
+          </blockquote>
+          <figcaption class="mt-4 text-xs tracking-[0.18em] uppercase text-brand-navy/70 font-semibold border-t border-brand-navy/15 pt-3">
+            {r.name} · {r.location}
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+
+    <p class="mt-10 text-[0.7rem] text-brand-ink/45 italic font-serif">
+      Filler testimonials — replaced by live Google Reviews on launch.
+    </p>
+  </div>
+</section>

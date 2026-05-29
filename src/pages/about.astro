@@ -1,0 +1,154 @@
+---
+import Base from "../layouts/Base.astro";
+import Header from "../components/editorial/Header.astro";
+import Footer from "../components/editorial/Footer.astro";
+import ContactCta from "../components/editorial/sections/ContactCta.astro";
+import PhotoPlaceholder from "../components/PhotoPlaceholder.astro";
+import Icon from "../components/Icon.astro";
+import { business } from "../data/content.ts";
+
+const title = `About Mory's Auto Parts and Glass — 20+ Years in Hialeah`;
+const description = `Mory's Auto Parts and Glass has served South Florida for over 20 years. Owner Alex — Mory himself — has helped thousands of customers find the right part at a fair price.`;
+
+const stats = [
+  { value: "20+", label: "Years in business" },
+  { value: "1,000s", label: "Customers served" },
+  { value: "EN / ES", label: "Spoken at the counter" },
+  { value: "Hialeah", label: "Where we're based" },
+];
+
+const values = [
+  {
+    icon: "search",
+    title: "We find the hard stuff",
+    body: "Years on the ground means a deep network of suppliers and salvage contacts. The parts other shops give up on are the ones we're known for tracking down.",
+  },
+  {
+    icon: "tag",
+    title: "Fair, direct pricing",
+    body: "No games, no padded quotes. Alex will tell you straight what's a good deal and what isn't worth it — that honesty is why customers keep coming back.",
+  },
+  {
+    icon: "shield",
+    title: "Two decades of trust",
+    body: "Over 20 years serving the same community builds something a chain store can't: regulars who send their family and friends our way.",
+  },
+];
+
+const breadcrumb = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://morysautoparts.com/" },
+    { "@type": "ListItem", position: 2, name: "About", item: "https://morysautoparts.com/about" },
+  ],
+};
+---
+
+<Base title={title} description={description} jsonLd={breadcrumb}>
+  <Header />
+  <main class="flex-1">
+    <!-- Hero -->
+    <section class="bg-brand-cream border-b border-brand-navy/15">
+      <div class="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-20">
+        <nav class="text-[0.7rem] uppercase tracking-[0.18em] text-brand-navy/55 mb-8" aria-label="Breadcrumb">
+          <a href="/" class="hover:text-brand-yellow">Home</a>
+          <span class="mx-2">/</span>
+          <span class="text-brand-navy">About</span>
+        </nav>
+
+        <div class="grid lg:grid-cols-12 gap-8 lg:items-end" data-reveal>
+          <div class="lg:col-span-8">
+            <p class="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-brand-navy/70 border-l-4 border-brand-yellow pl-3">
+              No. 01 — The Shop
+            </p>
+            <h1 class="mt-5 font-condensed font-bold uppercase text-5xl sm:text-6xl lg:text-7xl leading-[0.9] text-brand-navy">
+              Over 20 years of<br />
+              <span class="relative inline-block">
+                <span class="relative z-10">finding the part</span>
+                <span class="absolute left-0 right-0 -bottom-1 h-3 lg:h-4 bg-brand-yellow -z-0" aria-hidden="true"></span>
+              </span>.
+            </h1>
+          </div>
+          <div class="lg:col-span-4">
+            <p class="text-base text-brand-ink/85 font-serif leading-relaxed border-l-2 border-brand-navy/20 pl-5">
+              Mory's has been a fixture in Hialeah for more than two decades — and in that time, owner Alex has helped thousands of South Florida drivers get back on the road.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Story -->
+    <section class="bg-white border-b border-brand-navy/15 py-16 lg:py-24">
+      <div class="mx-auto max-w-6xl px-5 lg:px-8 grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+        <div class="lg:col-span-7" data-reveal>
+          <h2 class="font-condensed font-bold uppercase text-3xl sm:text-4xl text-brand-navy leading-[0.95]">
+            Alex is Mory — and he's been doing this a long time.
+          </h2>
+          <div class="mt-6 space-y-5 text-lg text-brand-ink/85 font-serif leading-relaxed">
+            <p>
+              For over 20 years, Mory's Auto Parts and Glass has been the shop South Florida drivers call when they need a part and a straight answer. Alex — Mory himself — has run it from the same corner of Hialeah the whole time.
+            </p>
+            <p>
+              In that stretch he's served thousands of customers: the weekend mechanic, the body shop down the street, the family trying to keep one more year out of a dependable car. New, used, or aftermarket — the goal has never changed. Find the right part. Quote it fair. Get it fast.
+            </p>
+            <p>
+              No franchise, no call center, no markup games. Just a small team that knows the suppliers, knows the salvage yards, and knows how to find what other shops can't — in English or Spanish, however you're most comfortable.
+            </p>
+          </div>
+        </div>
+
+        <div class="lg:col-span-5" data-reveal data-reveal-delay="100">
+          <div class="relative">
+            <PhotoPlaceholder
+              label="Photo of Alex / the shop — owner at the counter works best here"
+              ratio="4/5"
+              recommended="1200×1500 JPG"
+              class="!rounded-none ring-1 ring-brand-navy/10"
+            />
+            <div class="absolute -bottom-4 -left-4 bg-brand-yellow text-brand-navy px-4 py-3 max-w-[15rem]">
+              <p class="text-[0.6rem] uppercase tracking-[0.2em] font-bold">The Owner</p>
+              <p class="mt-1 font-condensed text-lg font-bold uppercase leading-tight">Alex — a.k.a. Mory</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats band -->
+    <section class="bg-brand-navy text-white border-b border-brand-navy/15">
+      <div class="mx-auto max-w-6xl px-5 lg:px-8 grid grid-cols-2 lg:grid-cols-4" data-reveal>
+        {stats.map((s, i) => (
+          <div class={`py-8 lg:py-10 px-3 lg:px-6 ${i % 2 === 1 ? "border-l border-white/15" : ""} ${i > 1 ? "border-t lg:border-t-0" : ""} ${i > 0 ? "lg:border-l border-white/15" : ""}`}>
+            <p class="font-condensed font-bold uppercase text-4xl lg:text-5xl text-brand-yellow leading-none">{s.value}</p>
+            <p class="mt-2 text-[0.65rem] uppercase tracking-[0.18em] text-white/60 font-semibold">{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Values -->
+    <section class="bg-brand-cream border-b border-brand-navy/15 py-16 lg:py-24">
+      <div class="mx-auto max-w-6xl px-5 lg:px-8" data-reveal>
+        <p class="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-brand-navy/70 border-l-4 border-brand-yellow pl-3">
+          No. 02 — Why People Come Back
+        </p>
+        <div class="mt-10 grid gap-px bg-brand-navy/15 sm:grid-cols-3 border border-brand-navy/20">
+          {values.map((v) => (
+            <div class="bg-brand-cream p-7 lg:p-8">
+              <div class="w-12 h-12 bg-brand-yellow text-brand-navy flex items-center justify-center mb-5">
+                <Icon name={v.icon} size={24} strokeWidth={1.75} />
+              </div>
+              <h3 class="font-condensed font-bold uppercase text-2xl text-brand-navy tracking-[0.01em] leading-tight">{v.title}</h3>
+              <p class="mt-3 text-brand-ink/80 font-serif leading-relaxed">{v.body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <ContactCta />
+  </main>
+  <Footer />
+</Base>

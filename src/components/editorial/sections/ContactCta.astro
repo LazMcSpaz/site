@@ -1,0 +1,68 @@
+---
+import Icon from "../../Icon.astro";
+import { business } from "../../../data/content.ts";
+---
+
+<section class="bg-brand-navy text-white py-20 lg:py-24 relative overflow-hidden">
+  <!-- Top yellow rule -->
+  <div class="absolute top-0 inset-x-0 h-1 bg-brand-yellow"></div>
+
+  <div class="relative mx-auto max-w-6xl px-5 lg:px-8 grid gap-14 lg:grid-cols-12 lg:items-center" data-reveal>
+    <div class="lg:col-span-7">
+      <p class="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-brand-yellow border-l-4 border-brand-yellow pl-3">
+        No. 06 — Place the Order
+      </p>
+      <h2 class="mt-5 font-condensed font-bold uppercase text-6xl sm:text-7xl lg:text-8xl leading-[0.88] text-white">
+        Skip the<br />search.<br />
+        <span class="text-brand-yellow">Just call us.</span>
+      </h2>
+      <p class="mt-6 text-lg text-white/80 max-w-lg font-serif leading-relaxed">
+        Tell us the year, make, model, and the part. We'll do the rest and call you back with real options — same week, fair price, no run-around.
+      </p>
+
+      <div class="mt-8 flex flex-col sm:flex-row gap-3">
+        <a
+          href={business.phoneHref}
+          class="inline-flex items-center justify-center gap-2 bg-brand-yellow text-brand-navy font-bold text-lg px-7 py-4 hover:bg-white transition-colors"
+        >
+          <Icon name="phone" size={20} strokeWidth={2.25} />
+          Call {business.phone}
+        </a>
+        <a
+          href="/contact"
+          class="inline-flex items-center justify-center gap-2 border-2 border-white/50 text-white font-semibold px-6 py-4 hover:bg-white hover:text-brand-navy hover:border-white transition-colors"
+        >
+          Send a part request
+          <Icon name="arrow-right" size={16} strokeWidth={2.25} />
+        </a>
+      </div>
+    </div>
+
+    <div class="lg:col-span-5">
+      <dl class="divide-y divide-white/15 border-y border-white/15">
+        <div class="py-5 grid grid-cols-3 gap-4 items-baseline">
+          <dt class="col-span-1 text-[0.7rem] uppercase tracking-[0.22em] text-white/60 font-bold">Visit</dt>
+          <dd class="col-span-2 font-condensed font-bold uppercase text-xl text-white leading-tight">
+            {business.address.line1}<br />{business.address.line2}
+          </dd>
+        </div>
+        <div class="py-5 grid grid-cols-3 gap-4 items-baseline">
+          <dt class="col-span-1 text-[0.7rem] uppercase tracking-[0.22em] text-white/60 font-bold">Hours</dt>
+          <dd class="col-span-2 font-condensed font-bold uppercase text-xl text-white">{business.hours}</dd>
+        </div>
+        <div class="py-5 grid grid-cols-3 gap-4 items-baseline">
+          <dt class="col-span-1 text-[0.7rem] uppercase tracking-[0.22em] text-white/60 font-bold">Phone</dt>
+          <dd class="col-span-2">
+            <a href={business.phoneHref} class="font-condensed font-bold uppercase text-xl text-brand-yellow hover:text-white transition-colors">{business.phone}</a>
+          </dd>
+        </div>
+        <div class="py-5 grid grid-cols-3 gap-4 items-baseline">
+          <dt class="col-span-1 text-[0.7rem] uppercase tracking-[0.22em] text-white/60 font-bold">Email</dt>
+          <dd class="col-span-2">
+            <a href={`mailto:${business.email}`} class="font-serif text-base text-white/90 hover:text-brand-yellow break-all transition-colors">{business.email}</a>
+          </dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+</section>

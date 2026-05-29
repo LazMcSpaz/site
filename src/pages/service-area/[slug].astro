@@ -1,0 +1,167 @@
+---
+import Base from "../../layouts/Base.astro";
+import Header from "../../components/editorial/Header.astro";
+import Footer from "../../components/editorial/Footer.astro";
+import ContactCta from "../../components/editorial/sections/ContactCta.astro";
+import ServiceMap from "../../components/ServiceMap.astro";
+import Icon from "../../components/Icon.astro";
+import { business, categories } from "../../data/content.ts";
+import { locations, getLocation, locationSchema } from "../../data/seo.ts";
+
+export function getStaticPaths() {
+  return locations.map((loc) => ({ params: { slug: loc.slug }, props: { loc } }));
+}
+
+const { loc } = Astro.props;
+const others = locations.filter((l) => l.slug !== loc.slug);
+
+const title = `Auto Parts in ${loc.name}, FL — New, Used & Aftermarket | Mory's`;
+const description = `Hard-to-find auto parts and glass for ${loc.name}, ${loc.county}. New, used, and aftermarket at fair prices from Mory's in Hialeah. Bilingual service. Call ${business.phone}.`;
+
+const breadcrumb = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://morysautoparts.com/" },
+    { "@type": "ListItem", position: 2, name: "Service Area", item: "https://morysautoparts.com/service-area" },
+    { "@type": "ListItem", position: 3, name: loc.name, item: `https://morysautoparts.com/service-area/${loc.slug}` },
+  ],
+};
+---
+
+<Base title={title} description={description} jsonLd={[locationSchema(loc), breadcrumb]}>
+  <Header />
+  <main class="flex-1">
+    <!-- Hero -->
+    <section class="bg-brand-cream border-b border-brand-navy/15">
+      <div class="mx-auto max-w-6xl px-5 lg:px-8 py-14 lg:py-20">
+        <!-- Breadcrumb -->
+        <nav class="text-[0.7rem] uppercase tracking-[0.18em] text-brand-navy/55 mb-8" aria-label="Breadcrumb">
+          <a href="/" class="hover:text-brand-yellow">Home</a>
+          <span class="mx-2">/</span>
+          <a href="/service-area" class="hover:text-brand-yellow">Service Area</a>
+          <span class="mx-2">/</span>
+          <span class="text-brand-navy">{loc.name}</span>
+        </nav>
+
+        <div class="grid lg:grid-cols-12 gap-8 lg:items-end" data-reveal>
+          <div class="lg:col-span-8">
+            <p class="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-brand-navy/70 border-l-4 border-brand-yellow pl-3">
+              Service Area — {loc.county}
+            </p>
+            <h1 class="mt-5 font-condensed font-bold uppercase text-5xl sm:text-6xl lg:text-7xl leading-[0.9] text-brand-navy">
+              Auto parts in<br />
+              <span class="relative inline-block">
+                <span class="relative z-10">{loc.name}, FL</span>
+                <span class="absolute left-0 right-0 -bottom-1 h-3 lg:h-4 bg-brand-yellow -z-0" aria-hidden="true"></span>
+              </span>
+            </h1>
+          </div>
+          <div class="lg:col-span-4">
+            <p class="text-base text-brand-ink/85 font-serif leading-relaxed border-l-2 border-brand-navy/20 pl-5">
+              {loc.intro}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-9 flex flex-col sm:flex-row gap-3 sm:items-center" data-reveal data-reveal-delay="80">
+          <a
+            href={business.phoneHref}
+            class="inline-flex items-center justify-center gap-2 bg-brand-navy text-white font-bold px-6 py-3.5 hover:bg-brand-yellow hover:text-brand-navy transition-colors"
+          >
+            <Icon name="phone" size={18} strokeWidth={2.25} />
+            Call {business.phone}
+          </a>
+          <a
+            href="/contact"
+            class="inline-flex items-center gap-2 text-brand-navy font-semibold px-2 py-3.5 border-b-2 border-brand-navy hover:border-brand-yellow transition-colors"
+          >
+            Send a part request
+            <Icon name="arrow-right" size={16} strokeWidth={2.25} />
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- What we source + map -->
+    <section class="bg-white border-b border-brand-navy/15 py-16 lg:py-20">
+      <div class="mx-auto max-w-6xl px-5 lg:px-8 grid lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+        <div class="lg:col-span-6" data-reveal>
+          <p class="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-brand-navy/70 border-l-4 border-brand-yellow pl-3">
+            What we source for {loc.name}
+          </p>
+          <h2 class="mt-5 font-condensed font-bold uppercase text-3xl sm:text-4xl text-brand-navy leading-[0.95]">
+            New, used, aftermarket &amp; glass.
+          </h2>
+          <ul class="mt-7 divide-y divide-brand-navy/15 border-y border-brand-navy/20">
+            {categories.map((c) => (
+              <li class="flex items-start gap-4 py-4">
+                <span class="text-brand-navy shrink-0 mt-0.5"><Icon name={c.icon} size={26} strokeWidth={1.5} /></span>
+                <div>
+                  <h3 class="font-condensed font-bold uppercase text-lg text-brand-navy tracking-[0.01em]">{c.title}</h3>
+                  <p class="text-sm text-brand-ink/80 font-serif leading-relaxed">{c.blurb}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <p class="mt-6 text-sm text-brand-ink/70 font-serif">
+            {loc.proximity} {" "}
+            Returns are handled case-by-case, and we can refer trusted mechanics and body shops in the {loc.name} area.
+          </p>
+        </div>
+
+        <div class="lg:col-span-6" data-reveal data-reveal-delay="100">
+          <div class="relative ring-1 ring-brand-navy/15">
+            <ServiceMap ratio="4/3" />
+            <div class="absolute top-0 inset-x-0 bg-brand-navy text-white px-4 py-2 flex items-center justify-between text-[0.65rem] uppercase tracking-[0.22em] pointer-events-none font-bold">
+              <span class="inline-flex items-center gap-2">
+                <Icon name="map-pin" size={12} strokeWidth={2.25} class="text-brand-yellow" />
+                151 E 10th Ave · Hialeah
+              </span>
+              <span class="hidden sm:inline text-brand-yellow">Serving {loc.name}</span>
+            </div>
+          </div>
+
+          <!-- Nearby areas for local relevance -->
+          <div class="mt-6">
+            <p class="text-[0.7rem] uppercase tracking-[0.22em] text-brand-navy/60 font-bold mb-3">
+              Neighborhoods we cover near {loc.name}
+            </p>
+            <div class="flex flex-wrap gap-2">
+              {loc.nearby.map((n) => (
+                <span class="text-xs uppercase tracking-wider font-semibold text-brand-navy bg-brand-cream border border-brand-navy/15 px-3 py-1.5">
+                  {n}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Other locations (internal linking) -->
+    <section class="bg-brand-cream border-b border-brand-navy/15 py-16 lg:py-20">
+      <div class="mx-auto max-w-6xl px-5 lg:px-8" data-reveal>
+        <p class="text-[0.7rem] font-bold uppercase tracking-[0.32em] text-brand-navy/70 border-l-4 border-brand-yellow pl-3">
+          Also serving across Miami-Dade &amp; Broward
+        </p>
+        <ul class="mt-8 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {others.map((o) => (
+            <li>
+              <a
+                href={`/service-area/${o.slug}`}
+                class="flex items-center justify-between px-4 py-3 bg-white border border-brand-navy/15 hover:border-brand-yellow group transition-colors"
+              >
+                <span class="font-condensed font-bold uppercase text-base text-brand-navy tracking-[0.02em] group-hover:text-brand-yellow transition-colors">{o.name}</span>
+                <Icon name="arrow-right" size={14} strokeWidth={2} class="text-brand-navy/40 group-hover:text-brand-yellow transition-colors" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <ContactCta />
+  </main>
+  <Footer />
+</Base>

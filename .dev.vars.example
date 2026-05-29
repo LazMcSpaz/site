@@ -1,0 +1,18 @@
+# Local secrets for Cloudflare Pages Functions (used by `wrangler pages dev`).
+# Copy to `.dev.vars` and fill in. NEVER commit `.dev.vars`.
+# In production, set these as encrypted variables in the Cloudflare Pages dashboard.
+
+# --- Supabase ---
+SUPABASE_URL="https://YOUR-PROJECT.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"   # server-only, full access
+
+# --- Resend (email) ---
+RESEND_API_KEY="re_xxxxxxxxxxxxxxxx"
+FROM_EMAIL="Mory's Auto Parts <noreply@morysautoparts.com>"   # must be a Resend-verified domain
+OWNER_EMAIL="mory7373@gmail.com"
+
+# --- Staff dashboard auth ---
+# STAFF_PIN_HASH = SHA-256 hex of (PIN + SESSION_SECRET).
+# Generate it with: npm run staff:pin -- <your-pin>
+STAFF_PIN_HASH="generate-with-the-helper-script"
+SESSION_SECRET="a-long-random-string-change-me"

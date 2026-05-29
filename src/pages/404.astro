@@ -1,0 +1,42 @@
+---
+import Base from "../layouts/Base.astro";
+import Header from "../components/editorial/Header.astro";
+import Footer from "../components/editorial/Footer.astro";
+import Icon from "../components/Icon.astro";
+import { business } from "../data/content.ts";
+---
+
+<Base title="Page not found — Mory's Auto Parts and Glass" description="That page doesn't exist. Find auto parts, service areas, or contact Mory's in Hialeah.">
+  <Header />
+  <main class="flex-1">
+    <section class="bg-brand-cream">
+      <div class="mx-auto max-w-3xl px-5 lg:px-8 py-24 lg:py-32 text-center">
+        <p class="font-condensed font-bold uppercase text-[7rem] sm:text-[10rem] leading-none text-brand-navy">
+          4<span class="text-brand-yellow">0</span>4
+        </p>
+        <h1 class="mt-2 font-condensed font-bold uppercase text-3xl sm:text-4xl text-brand-navy">
+          That part isn't on the shelf.
+        </h1>
+        <p class="mt-4 text-lg text-brand-ink/80 font-serif leading-relaxed">
+          The page you're looking for doesn't exist or has moved. Let's get you back on the road.
+        </p>
+
+        <div class="mt-9 flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="/" class="inline-flex items-center justify-center gap-2 bg-brand-navy text-white font-bold px-6 py-3.5 hover:bg-brand-yellow hover:text-brand-navy transition-colors">
+            <Icon name="arrow-right" size={18} strokeWidth={2.25} /> Back home
+          </a>
+          <a href={business.phoneHref} class="inline-flex items-center justify-center gap-2 border-2 border-brand-navy text-brand-navy font-semibold px-6 py-3.5 hover:bg-brand-navy hover:text-white transition-colors">
+            <Icon name="phone" size={18} strokeWidth={2.25} /> Call {business.phone}
+          </a>
+        </div>
+
+        <nav class="mt-12 flex flex-wrap gap-x-6 gap-y-2 justify-center text-sm font-semibold uppercase tracking-wider text-brand-navy/70">
+          <a href="/about" class="hover:text-brand-yellow">About</a>
+          <a href="/service-area" class="hover:text-brand-yellow">Service Area</a>
+          <a href="/contact" class="hover:text-brand-yellow">Contact</a>
+        </nav>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Base>
