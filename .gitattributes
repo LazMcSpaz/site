@@ -1,0 +1,9 @@
+# Normalize line endings: store as LF in the repo (Cloudflare builds on Linux).
+* text=auto eol=lf
+
+# Treat these as binary (no EOL conversion).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.webp binary
