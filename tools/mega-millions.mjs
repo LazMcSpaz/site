@@ -1,47 +1,32 @@
 #!/usr/bin/env node
-// Mega Millions frequency analyzer.
+// Mega Millions frequency analyzer (CLI companion to the web tool in
+// ../mega-millions/).
 //
-// Scrapes the full official Mega Millions draw history (every drawing since
-// 2002) from New York State's open-data API and reports which numbers have
-// been drawn most often.
+// Looks ONLY at the current 5/70 matrix (drawings since 2017-10-31) and reports
+// which numbers have been drawn most often, with last-12-months / last-6-months
+// windows.
 //
-//   node tools/mega-millions.mjs                # all-time, top 10
-//   node tools/mega-millions.mjs --top 20       # show top 20
-//   node tools/mega-millions.mjs --era          # only the current 5/70 matrix
-//   node tools/mega-millions.mjs --since 2020-01-01
-//   node tools/mega-millions.mjs --all          # full distribution
-//   node tools/mega-millions.mjs --json         # machine-readable output
+//   node tools/mega-millions.mjs                # 5/70 era, all of it
+//   node tools/mega-millions.mjs --range 12m    # last 12 months of drawings
+//   node tools/mega-millions.mjs --range 6m     # last 6 months of drawings
+//   node tools/mega-millions.mjs --top 20
+//   node tools/mega-millions.mjs --json
 //
-// Data source: https://data.ny.gov/Government-Finance/Lottery-Mega-Millions-Winning-Numbers-Beginning-20/5xaw-6ayf
-// (Socrata JSON endpoint, updated after every drawing.) Requires Node >= 18
-// for the built-in fetch(). No external dependencies.
-//
-// A note on "most often": Mega Millions has changed its number pools several
-// times, so a raw all-time count is biased toward low numbers that have been
-// eligible in every era. Use --era to restrict to the current matrix for a
-// fair "hot numbers" view.
-//
-//   2002-05 .. 2005-06   5 of 52  + Mega Ball 1-52
-//   2005-06 .. 2013-10   5 of 56  + Mega Ball 1-46
-//   2013-10 .. 2017-10   5 of 75  + Mega Ball 1-15
-//   2017-10 .. 2025-04   5 of 70  + Mega Ball 1-25
-//   2025-04 .. present   5 of 70  + Mega Ball 1-24   (current)
+// Data: NY State open data (Socrata), updated after every drawing. Requires
+// Node >= 18 for built-in fetch(). No external dependencies.
 
 const ENDPOINT = "https://data.ny.gov/resource/5xaw-6ayf.json";
-// Start of the current 5/70 main-ball matrix (Mega Ball pool tweaked in 2025
-// but the white-ball pool 1-70 is unchanged since this date).
-const CURRENT_ERA_START = "2017-10-31";
+// Start of the current 5/70 main-ball matrix. We never look before this.
+const ERA_START = "2017-10-31";
 
 function parseArgs(argv) {
-  const opts = { top: 10, since: null, era: false, all: false, json: false };
+  const opts = { top: 10, range: "era", json: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--top") opts.top = parseInt(argv[++i], 10);
     else if (a.startsWith("--top=")) opts.top = parseInt(a.slice(6), 10);
-    else if (a === "--since") opts.since = argv[++i];
-    else if (a.startsWith("--since=")) opts.since = a.slice(8);
-    else if (a === "--era") opts.era = true;
-    else if (a === "--all") opts.all = true;
+    else if (a === "--range") opts.range = argv[++i];
+    else if (a.startsWith("--range=")) opts.range = a.slice(8);
     else if (a === "--json") opts.json = true;
     else if (a === "--help" || a === "-h") opts.help = true;
     else {
@@ -49,126 +34,137 @@ function parseArgs(argv) {
       opts.help = true;
     }
   }
-  if (opts.era && !opts.since) opts.since = CURRENT_ERA_START;
+  if (!["era", "12m", "6m"].includes(opts.range)) {
+    console.error(`--range must be one of: era, 12m, 6m`);
+    opts.help = true;
+  }
   return opts;
 }
 
 function usage() {
   console.log(
-    `Mega Millions frequency analyzer\n\n` +
+    `Mega Millions frequency analyzer (current 5/70 matrix only)\n\n` +
       `  node tools/mega-millions.mjs [options]\n\n` +
-      `  --top N        how many ranked numbers to show (default 10)\n` +
-      `  --era          restrict to the current 5/70 matrix (since ${CURRENT_ERA_START})\n` +
-      `  --since DATE   restrict to drawings on/after DATE (YYYY-MM-DD)\n` +
-      `  --all          print the full distribution, not just the top N\n` +
-      `  --json         output JSON instead of tables\n` +
-      `  --help         show this help\n`
+      `  --range era|12m|6m   era = everything since ${ERA_START} (default),\n` +
+      `                       12m/6m = last 12 / 6 months of drawings\n` +
+      `  --top N              how many ranked numbers to show (default 10)\n` +
+      `  --json               output JSON instead of tables\n` +
+      `  --help               show this help\n`
   );
 }
 
-async function fetchAllDraws() {
-  // The dataset is only a few thousand rows; one large page is enough, but we
-  // paginate defensively in case it grows.
-  const pageSize = 50000;
-  let offset = 0;
-  const rows = [];
-  for (;;) {
-    const url =
-      `${ENDPOINT}?$select=draw_date,winning_numbers,mega_ball` +
-      `&$order=draw_date ASC&$limit=${pageSize}&$offset=${offset}`;
-    const res = await fetch(url, { headers: { Accept: "application/json" } });
-    if (!res.ok) {
-      throw new Error(
-        `HTTP ${res.status} ${res.statusText} fetching ${ENDPOINT}\n` +
-          `(If you are behind a network allowlist, allow data.ny.gov.)`
-      );
-    }
-    const page = await res.json();
-    rows.push(...page);
-    if (page.length < pageSize) break;
-    offset += pageSize;
+async function fetchDraws() {
+  const params = new URLSearchParams({
+    $select: "draw_date,winning_numbers,mega_ball",
+    $where: `draw_date >= '${ERA_START}T00:00:00'`,
+    $order: "draw_date ASC",
+    $limit: "50000",
+  });
+  const res = await fetch(`${ENDPOINT}?${params}`, {
+    headers: { Accept: "application/json" },
+  });
+  if (!res.ok) {
+    throw new Error(
+      `HTTP ${res.status} ${res.statusText} fetching ${ENDPOINT}\n` +
+        `(If you are behind a network allowlist, allow data.ny.gov.)`
+    );
   }
-  return rows;
+  return res.json();
 }
 
-function tally(rows, since) {
-  const main = new Map(); // number -> count
+function parseDraws(rows) {
+  return rows
+    .map((r) => ({
+      date: String(r.draw_date || "").slice(0, 10),
+      main: String(r.winning_numbers || "")
+        .trim()
+        .split(/\s+/)
+        .map(Number)
+        .filter(Number.isFinite)
+        .slice(0, 5),
+      mega: Number(r.mega_ball),
+    }))
+    .filter((d) => d.main.length === 5);
+}
+
+function subtractMonths(isoDate, months) {
+  const d = new Date(`${isoDate}T00:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() - months);
+  return d.toISOString().slice(0, 10);
+}
+
+// Relative ranges anchor to the most recent drawing (data sorted ascending).
+function filterByRange(draws, range) {
+  if (range === "era" || draws.length === 0) return draws;
+  const latest = draws[draws.length - 1].date;
+  const cutoff = subtractMonths(latest, range === "6m" ? 6 : 12);
+  return draws.filter((d) => d.date >= cutoff);
+}
+
+function tally(draws) {
+  const main = new Map();
   const mega = new Map();
-  let draws = 0;
-  let firstDate = null;
-  let lastDate = null;
-
-  for (const row of rows) {
-    const date = (row.draw_date || "").slice(0, 10);
-    if (since && date < since) continue;
-    const nums = String(row.winning_numbers || "")
-      .trim()
-      .split(/\s+/)
-      .map(Number)
-      .filter((n) => Number.isFinite(n));
-    if (nums.length < 5) continue;
-
-    draws++;
-    if (!firstDate || date < firstDate) firstDate = date;
-    if (!lastDate || date > lastDate) lastDate = date;
-
-    for (const n of nums.slice(0, 5)) main.set(n, (main.get(n) || 0) + 1);
-    const mb = Number(row.mega_ball);
-    if (Number.isFinite(mb)) mega.set(mb, (mega.get(mb) || 0) + 1);
+  for (const dr of draws) {
+    for (const n of dr.main) main.set(n, (main.get(n) || 0) + 1);
+    if (Number.isFinite(dr.mega)) mega.set(dr.mega, (mega.get(dr.mega) || 0) + 1);
   }
-  return { main, mega, draws, firstDate, lastDate };
+  return { main, mega };
 }
 
-function ranked(map) {
+function rank(map) {
   return [...map.entries()]
-    .map(([n, count]) => ({ number: n, count }))
+    .map(([number, count]) => ({ number, count }))
     .sort((a, b) => b.count - a.count || a.number - b.number);
+}
+
+function topFiveLowToHigh(mainRanked) {
+  return mainRanked
+    .slice(0, 5)
+    .map((x) => x.number)
+    .sort((a, b) => a - b);
 }
 
 function printTable(title, list, draws, limit) {
   console.log(`\n${title}`);
-  const shown = limit ? list.slice(0, limit) : list;
   const maxCount = list.length ? list[0].count : 0;
-  const barWidth = 30;
-  for (let i = 0; i < shown.length; i++) {
-    const { number, count } = shown[i];
-    const pctOfDraws = draws ? ((count / draws) * 100).toFixed(1) : "0.0";
-    const bar = "█".repeat(Math.round((count / maxCount) * barWidth));
+  for (let i = 0; i < Math.min(limit, list.length); i++) {
+    const { number, count } = list[i];
+    const pct = draws ? ((count / draws) * 100).toFixed(1) : "0.0";
+    const bar = "█".repeat(Math.round((count / maxCount) * 28));
     console.log(
-      `  ${String(i + 1).padStart(3)}.  ` +
-        `#${String(number).padStart(2)}  ` +
-        `${String(count).padStart(4)}x  ` +
-        `${pctOfDraws.padStart(5)}% of draws  ${bar}`
+      `  ${String(i + 1).padStart(3)}.  #${String(number).padStart(2)}  ` +
+        `${String(count).padStart(4)}x  ${pct.padStart(5)}% of draws  ${bar}`
     );
   }
 }
+
+const RANGE_LABEL = { era: "since 2017 (5/70)", "12m": "last 12 months", "6m": "last 6 months" };
 
 async function main() {
   const opts = parseArgs(process.argv.slice(2));
   if (opts.help) return usage();
 
-  process.stderr.write("Fetching full Mega Millions draw history…\n");
-  const rows = await fetchAllDraws();
-  const { main: mainMap, mega, draws, firstDate, lastDate } = tally(
-    rows,
-    opts.since
-  );
+  process.stderr.write("Fetching Mega Millions draw history (5/70 era)…\n");
+  const all = parseDraws(await fetchDraws());
+  const draws = filterByRange(all, opts.range);
 
-  if (draws === 0) {
-    console.error("No drawings matched the given filters.");
+  if (draws.length === 0) {
+    console.error("No drawings matched the given range.");
     process.exit(1);
   }
 
-  const mainRanked = ranked(mainMap);
-  const megaRanked = ranked(mega);
+  const mainRanked = rank(tally(draws).main);
+  const megaRanked = rank(tally(draws).mega);
+  const top5 = topFiveLowToHigh(mainRanked);
 
   if (opts.json) {
     console.log(
       JSON.stringify(
         {
-          draws,
-          dateRange: { from: firstDate, to: lastDate },
-          since: opts.since,
+          range: opts.range,
+          draws: draws.length,
+          dateRange: { from: draws[0].date, to: draws[draws.length - 1].date },
+          top5MostChosenLowToHigh: top5,
           mainNumbers: mainRanked,
           megaBall: megaRanked,
         },
@@ -180,20 +176,13 @@ async function main() {
   }
 
   console.log(
-    `\nMega Millions — ${draws} drawings  (${firstDate} → ${lastDate})` +
-      (opts.since ? `   [filtered since ${opts.since}]` : "")
+    `\nMega Millions — ${RANGE_LABEL[opts.range]}` +
+      `  ·  ${draws.length} drawings  (${draws[0].date} → ${draws[draws.length - 1].date})`
   );
+  console.log(`\nTop 5 most-chosen main numbers, low → high:  ${top5.join("  ")}`);
 
-  const limit = opts.all ? 0 : opts.top;
-  printTable("Most-drawn main numbers (white balls):", mainRanked, draws, limit);
-  printTable("Most-drawn Mega Ball:", megaRanked, draws, limit);
-
-  if (!opts.since) {
-    console.log(
-      `\nNote: pools changed over the years, so all-time counts favor low\n` +
-        `numbers eligible in every era. Re-run with --era for the current 5/70 matrix.`
-    );
-  }
+  printTable("Most-drawn main numbers (white balls):", mainRanked, draws.length, opts.top);
+  printTable("Most-drawn Mega Ball:", megaRanked, draws.length, opts.top);
   console.log();
 }
 
