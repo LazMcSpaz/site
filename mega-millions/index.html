@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mega Millions — Most-Drawn Numbers</title>
+    <style>
+      :root {
+        --bg: #0e1116;
+        --panel: #171c24;
+        --line: #262d38;
+        --text: #e8eef6;
+        --muted: #93a1b3;
+        --accent: #ffd33d;
+        --accent2: #4ea1ff;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .wrap { max-width: 760px; margin: 0 auto; padding: 28px 18px 64px; }
+      h1 { font-size: 1.6rem; margin: 0 0 4px; }
+      .sub { color: var(--muted); margin: 0 0 22px; }
+      .sub b { color: var(--text); }
+
+      .toggle {
+        display: inline-flex;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 4px;
+        gap: 4px;
+        margin-bottom: 24px;
+      }
+      .toggle button {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        font: inherit;
+        font-weight: 600;
+        padding: 8px 14px;
+        border-radius: 7px;
+        cursor: pointer;
+      }
+      .toggle button.active { background: var(--accent); color: #1a1300; }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 20px;
+        margin-bottom: 22px;
+      }
+      .panel h2 {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin: 0 0 14px;
+      }
+      .hero { text-align: center; }
+      #top5 { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+      .summary { color: var(--muted); font-size: 0.85rem; margin-top: 16px; }
+
+      .ball {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 30px;
+        height: 30px;
+        padding: 0 6px;
+        border-radius: 50%;
+        background: #fff;
+        color: #11151c;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+      .ball.big {
+        min-width: 58px;
+        height: 58px;
+        font-size: 1.5rem;
+        box-shadow: 0 0 0 3px var(--accent);
+      }
+
+      .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+      @media (max-width: 560px) { .cols { grid-template-columns: 1fr; } }
+      table { width: 100%; border-collapse: collapse; }
+      td { padding: 5px 6px; vertical-align: middle; }
+      td.rank { color: var(--muted); width: 24px; text-align: right; }
+      td.count { font-variant-numeric: tabular-nums; white-space: nowrap; }
+      td.pct { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+      td.barcell { width: 38%; }
+      .bar { display: block; height: 8px; border-radius: 4px; background: var(--accent2); }
+
+      #status { color: var(--muted); padding: 40px 0; text-align: center; }
+      code { background: #000; padding: 1px 5px; border-radius: 4px; }
+      footer { color: var(--muted); font-size: 0.8rem; margin-top: 30px; }
+      a { color: var(--accent2); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Mega Millions — Most-Drawn Numbers</h1>
+      <p class="sub">
+        Current <b>5/70</b> matrix only (drawings since Oct 31, 2017). Live data
+        from the official NY State open-data feed.
+      </p>
+
+      <div class="toggle" role="tablist" aria-label="Time range">
+        <button data-range="era" class="active">Since 2017 (5/70)</button>
+        <button data-range="12m">Last 12 months</button>
+        <button data-range="6m">Last 6 months</button>
+      </div>
+
+      <div id="status">Loading…</div>
+
+      <div id="app" style="display: none">
+        <section class="panel hero">
+          <h2>Top 5 most-chosen · arranged low → high</h2>
+          <div id="top5"></div>
+          <div class="summary" id="summary"></div>
+        </section>
+
+        <div class="cols">
+          <section class="panel">
+            <h2>Main numbers (by frequency)</h2>
+            <div id="mainList"></div>
+          </section>
+          <section class="panel">
+            <h2>Mega Ball (by frequency)</h2>
+            <div id="megaList"></div>
+          </section>
+        </div>
+
+        <footer>
+          Source:
+          <a href="https://data.ny.gov/d/5xaw-6ayf" target="_blank" rel="noopener"
+            >NY State — Mega Millions Winning Numbers</a
+          >. Frequency ≠ prediction; draws are independent and random.
+        </footer>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
